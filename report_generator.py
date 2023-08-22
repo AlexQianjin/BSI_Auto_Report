@@ -28,8 +28,8 @@ class Report(object):
         #light_chain_rmass = input('Please input light chain real mass detected by BioPharma Finder\n')
         hpeptides_format = self.get_peptide_confidence_mapping(heavy_chain_report)
         lpeptides_format = self.get_peptide_confidence_mapping(light_chain_report)
-        htIL_format = self.get_IL_loction(heavy_chain_report)
-        ltIL_format = self.get_IL_loction(light_chain_report)
+        # htIL_format = self.get_IL_loction(heavy_chain_report)
+        # ltIL_format = self.get_IL_loction(light_chain_report)
         hcoverage = self.get_proteinseq_confidence(heavy_chain_report, report_path)
         lcoverage = self.get_proteinseq_confidence(light_chain_report, report_path)
         hmap_format = self.get_typical_peptide_map(heavy_chain_report, report_path)
@@ -44,12 +44,12 @@ class Report(object):
             'heavy_chain_cmass': heavy_chain_cmass,
             'heavy_chain_rmass': heavy_chain_rmass,
             'hpeptides': hpeptides_format,
-            'htIL': htIL_format,
+            # 'htIL': htIL_format,
             'lsequence': lsequence_format,
             'light_chain_cmass': light_chain_cmass,
             'light_chain_rmass': light_chain_rmass,
             'lpeptides': lpeptides_format,
-            'ltIL': ltIL_format,
+            # 'ltIL': ltIL_format,
             'typical_hpeptide_image': InlineImage(self.tpl, hcoverage, width=Mm(165), height=Mm(79)),
             'typical_lpeptide_image': InlineImage(self.tpl, lcoverage, width=Mm(165), height=Mm(79)),
             'typical_peptide_hmap': hmap_format,
@@ -76,12 +76,11 @@ class Report(object):
         return select_chain.find_all('p')[0].get_text().split()[2]
 
     def get_proteinseq_confidence(self, select_chain, report_path):
-        img_abpath = path.join(report_path,
-                               path.join('img', select_chain.find_all('div', {'class': 'coverage'})[0].img['src'][4:]))
+        img_abpath = path.join(report_path,'img', select_chain.find_all('div', {'class': 'coverage'})[0].img['src'][4:])
         img = Image.open(img_abpath)
         coverage = img.crop((25, 0, 1570, 730))
-        coverage.save(path.join('temp', select_chain.h2.get_text().split('_')[-1] + '_confidence.jpg'))
-        return path.join('temp', select_chain.h2.get_text().split('_')[-1] + '_confidence.jpg')
+        coverage.save(path.join(report_path, 'temp', select_chain.h2.get_text().split('_')[-1] + '_confidence.jpg'))
+        return path.join(report_path, 'temp', select_chain.h2.get_text().split('_')[-1] + '_confidence.jpg')
 
     def get_peptide_confidence_mapping(self, select_chain):
         tpeptide_confidence_format = []
@@ -136,24 +135,24 @@ class Report(object):
             if start_anchor[i] + 603 < end_anchor[i]:
                 if HL_flag == 'H':
                     img.crop((0, start_anchor[i] - 26, img.size[0], start_anchor[i] + 603)).save(
-                        path.join('temp', '{}{}.png'.format('hfdr', i)))
+                        path.join(report_path, 'temp', '{}{}.png'.format('hfdr', i)))
                 elif HL_flag == 'L':
                     img.crop((0, start_anchor[i] - 26, img.size[0], start_anchor[i] + 603)).save(
-                        path.join('temp', '{}{}.png'.format('lfdr', i)))
+                        path.join(report_path, 'temp', '{}{}.png'.format('lfdr', i)))
             else:
                 if HL_flag == 'H':
                     img.crop((0, start_anchor[i] - 26, img.size[0], end_anchor[i] - 26)).save(
-                        path.join('temp', '{}{}.png'.format('hfdr', i)))
+                        path.join(report_path, 'temp', '{}{}.png'.format('hfdr', i)))
                 elif HL_flag == 'L':
                     img.crop((0, start_anchor[i] - 26, img.size[0], end_anchor[i] - 26)).save(
-                        path.join('temp', '{}{}.png'.format('lfdr', i)))
+                        path.join(report_path, 'temp', '{}{}.png'.format('lfdr', i)))
 
         if HL_flag == 'H':
             FDR_mapping_format = [{'img': InlineImage(self.tpl, img_name, width=Mm(165))} for img_name in
-                                  sorted(glob(path.join('temp', 'hfdr*')))]
+                                  sorted(glob(path.join(report_path, 'temp', 'hfdr*')))]
         else:
             FDR_mapping_format = [{'img': InlineImage(self.tpl, img_name, width=Mm(165))} for img_name in
-                                  sorted(glob(path.join('temp', 'lfdr*')))]
+                                  sorted(glob(path.join(report_path, 'temp', 'lfdr*')))]
 
         return FDR_mapping_format
 

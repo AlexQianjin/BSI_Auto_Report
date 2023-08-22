@@ -1,0 +1,8 @@
+PyQt5
+jinja2
+pandas
+pillow
+docx
+bs4
+docxtpl
+html5lib

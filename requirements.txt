@@ -6,3 +6,4 @@ docx
 bs4
 docxtpl
 html5lib
+PyInstaller
